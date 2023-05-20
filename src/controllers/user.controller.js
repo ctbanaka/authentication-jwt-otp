@@ -55,15 +55,15 @@ const signup = async (req, res,) => {
   }
 };
 
-const signin = async (req, res) => {
+const signIn = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await USER.findOne({
-        include: [{
-            model: ROLE,
-            attributes: ['ROLE_ID', 'ROLE_NAME'] 
-          }],
+        // include: [{
+        //     model: ROLE,
+        //     attributes: ['ROLE_ID', 'ROLE_NAME'] 
+        //   }],
       where: {
         EMAIL_ID: email,
       },
@@ -82,7 +82,7 @@ const signin = async (req, res) => {
     const token = jwt.sign(
       {
         email: user.EMAIL_ID,
-        role: user.ROLE_ID,
+       // role: user.ROLE_ID,
         userId: user.USER_ID,
       },
       SECRET_KEY,

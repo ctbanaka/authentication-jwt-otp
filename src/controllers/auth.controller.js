@@ -119,11 +119,78 @@ const validateOTP= async (req, res) => {
 
 const resendOtp = async (req, res) => { 
    const {email} = req.body;
-
+  try{
    const user = await USER.findOne({ where:{EMAIL_ID: email}});
 
-   
+   if (user) {
+    if (user.isVERIFIED) {
+      return res
+        .status(409)
+        .json({ error: "User already exists and has been verified" });
+    }
+  } else {
+    return res
+    .status(409)
+    .json({ error: ` account not found with ${email}` });
+  }
+
+  const otp = await generateOTP();
+  const hashedOTP = await hashPassOrOTP(otp); 
+
+  await OTP.create({
+    USER_ID: user.USER_ID,
+    OTP: hashedOTP,
+  });
+
+  await sendOTPToEmail(email,otp);
+ 
+  return res.status(201).json({
+    message:
+      "OTP sent successfully",
+  });
+  }catch(err) {
+    return res.status(500).json({ error: "error detected",message: err.message });
+  };
 
 };
 
-module.exports = { sendOtp, validateOTP };
+const signIn = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await USER.findOne({
+        // include: [{
+        //     model: ROLE,
+        //     attributes: ['ROLE_ID', 'ROLE_NAME'] 
+        //   }],
+      where: {
+        EMAIL_ID: email,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    const matchPassword = await bcrypt.compare(password, user.PASSWORD);
+
+    if (!matchPassword) {
+      return res.status(400).json({ error: "invalid password" });
+    }
+
+    const token = jwt.sign(
+      {
+        email: user.EMAIL_ID,
+       // role: user.ROLE_ID,
+        userId: user.USER_ID,
+      },
+      SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+    res.status(200).send({ user: user, token: token });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = { sendOtp, validateOTP,resendOtp, signIn };
