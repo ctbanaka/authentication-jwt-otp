@@ -5,12 +5,7 @@ const USER = db.user;
 const ROLE = db.role;
 const OTP = db.otp;
 const SECRET_KEY = process.env.SECRET_KEY;
-const {
-  generateOTP,
-  hashPassOrOTP,
-  comparePasswordOrOtp,
-  sendOTPToEmail,
-} = require("../utils/utils");
+const {generateOTP,hashPassOrOTP,comparePasswordOrOtp,sendOTPToEmail} = require("../utils/utils");
 
 const sendOtp = async (req, res) => {
   const { email, password } = req.body;

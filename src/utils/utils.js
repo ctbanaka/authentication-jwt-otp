@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const otpGenerator = require('otp-generator');
 const AWS = require('aws-sdk');
 
+
 exports.generateOTP = async () => {
   return await otpGenerator.generate(6, {lowerCaseAlphabets: false,upperCaseAlphabets:false, specialChars: false }); 
 };
@@ -11,12 +12,13 @@ exports.generateOTP = async () => {
 exports.sendOTPToEmail = async (email, otp) => {
 
   const transporter = nodemailer.createTransport({
-   host:'smtp.hostinger.com',
-   port:465,
+
+   host: process.env.MYHOST,
+   port:process.env.MYPORT,
    secure:true,
    auth:{
-    user:"hello@legituser.com",
-    pass:"Chetan@123"
+    user: process.env.USER,
+    pass: process.env.PASS
    }
  
     // SES: new AWS.SES({
@@ -26,7 +28,6 @@ exports.sendOTPToEmail = async (email, otp) => {
     //   region: "eu-west-1",
     // })
    
-    
   });
 
   const mailOptions = {
