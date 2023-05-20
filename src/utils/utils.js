@@ -33,8 +33,97 @@ exports.sendOTPToEmail = async (email, otp) => {
   const mailOptions = {
     from: "chetankumar@legituser.com",
     to: email,
-    subject: 'OTP Verification',
-    text: `Your OTP for email verification is: ${otp}`,
+    subject: 'OneView OTP Verification',
+    html:`<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Email Verification</title>
+        <style>
+        
+            body, body * {
+                box-sizing: border-box;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+            
+            
+            body {
+                background-color: #f7f7f7;
+                color: #333333;
+            }
+            
+            .container {
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            
+            .header h1 {
+                color: #555555;
+                margin-bottom: 10px;
+            }
+            
+            .content {
+                background-color: #ffffff;
+                padding: 30px;
+            }
+            
+            .footer {
+                text-align: center;
+                margin-top: 30px;
+                color: #777777;
+            }
+            
+            /* Responsive styles */
+            @media (max-width: 600px) {
+                .container {
+                    padding: 10px;
+                }
+                
+                .header h1 {
+                    font-size: 24px;
+                }
+                
+                .content {
+                    padding: 20px;
+                }
+                
+                .footer {
+                    margin-top: 20px;
+                    font-size: 12px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Verify Email</h1>
+            </div>
+            
+            <div class="content">
+                <p>Hi,</p>
+                <p>Your One-Time Password (OTP) is:</p>
+                <h2 style="text-align: center;">${otp}</h2>
+                <p>Please use this OTP to complete your verification process.</p>
+            </div>
+            
+            <div class="footer">
+                <p>Sent from OneView team</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `
   };
 
   try {

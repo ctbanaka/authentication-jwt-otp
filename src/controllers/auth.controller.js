@@ -10,11 +10,16 @@ const {generateOTP,hashPassOrOTP,comparePasswordOrOtp,sendOTPToEmail} = require(
 const sendOtp = async (req, res) => {
   const { email, password } = req.body;
 
-  // const emailRegex = /^[A-Za-z0-9._%+-]+@capgemini\.com$/;
+   const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/; // regex will be replaced to capgemini
   try {
-    // if (!emailRegex.test(email)) {
-    //   return res.status(400).json({ error: "this is not a valid email" });
-    // }
+
+    if(!email || !password) {
+      throw new Error(`one or more fields required`);
+    } 
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "this is not a valid email" });
+    }
 
     const exstingUser = await USER.findOne({
       where: {
@@ -68,6 +73,11 @@ const validateOTP = async (req, res) => {
   const { email, otp } = req.body;
 
   try {
+
+    if(!email || !otp) {
+      throw new Error(`one or more fields required`);
+    } 
+
     const user = await USER.findOne({
       where: {
         EMAIL_ID: email,
@@ -105,13 +115,12 @@ const validateOTP = async (req, res) => {
 
       res.status(200).json({ message: `OTP validated`, token: token });
     } else {
-      res.status(400).json({ message: `incorrect OTP or email address` });
+      res.status(400).json({ message: `incorrect OTP` });
     }
+  
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ err: "error detected", message: error.message });
+    return res.status(500).json({ err: "error detected", message: error.message });
   }
 };
 
@@ -156,6 +165,11 @@ const signIn = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+
+    if(!email || !password) {
+      throw new Error(`one or more fields required`);
+    }
+    
     const user = await USER.findOne({
       // include: [{
       //     model: ROLE,
