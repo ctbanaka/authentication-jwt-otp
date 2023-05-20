@@ -6,11 +6,11 @@ const USER = db.user;
 const OTP = db.otp;
 const SECRET_KEY = process.env.SECRET_KEY;
 const {generateOTP,hashPassOrOTP,comparePasswordOrOtp,sendOTPToEmail} = require("../utils/utils");
+const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/; // regex will be replaced to capgemini
 
 const sendOtp = async (req, res) => {
   const { email, password } = req.body;
 
-   const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/; // regex will be replaced to capgemini
   try {
 
     if(!email || !password) {
@@ -78,6 +78,10 @@ const validateOTP = async (req, res) => {
       throw new Error(`one or more fields required`);
     } 
 
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "this is not a valid email" });
+    }
+
     const user = await USER.findOne({
       where: {
         EMAIL_ID: email,
@@ -127,8 +131,17 @@ const validateOTP = async (req, res) => {
 const resendOtp = async (req, res) => {
   const { email } = req.body;
   try {
-    const user = await USER.findOne({ where: { EMAIL_ID: email } });
 
+    if(!email){
+      throw new Error(`email required`);
+    }
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "this is not a valid email" });
+    }
+
+    const user = await USER.findOne({ where: { EMAIL_ID: email } });
+  
     if (user) {
       if (user.IS_VERIFIED) {
         return res
