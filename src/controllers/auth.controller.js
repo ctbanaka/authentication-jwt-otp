@@ -28,13 +28,13 @@ const sendOtp = async (req, res) => {
     });
 
     if (exstingUser) {
-      if (exstingUser.isVERIFIED) {
+      if (exstingUser.IS_VERIFIED) {
         return res
           .status(409)
           .json({ error: "User already exists and has been verified" });
       }
 
-      if (!exstingUser.isVERIFIED) {
+      if (!exstingUser.IS_VERIFIED) {
         return res.status(409).json({
           error: "User exists but is not verified",
           message: "Please verify your account before proceeding.",
@@ -51,107 +51,110 @@ const sendOtp = async (req, res) => {
       PASSWORD: hashedPassword,
     });
 
-     await OTP.create({
+    await OTP.create({
       USER_ID: user.USER_ID,
       OTP: hashedOTP,
     });
 
-    await sendOTPToEmail(email,otp);
+    await sendOTPToEmail(email, otp);
 
     return res.status(201).json({
-        message:
-          "Signup successful. Please check your email for OTP verification.",
-      });
+      message:
+        "Signup successful. Please check your email for OTP verification.",
+    });
   } catch (error) {
-    return res.status(500).json({ err: "error detected",message: error.message });
+    return res
+      .status(500)
+      .json({ err: "error detected", message: error.message });
   }
 };
 
-const validateOTP= async (req, res) => {
+const validateOTP = async (req, res) => {
   const { email, otp } = req.body;
- 
+
   try {
     const user = await USER.findOne({
       where: {
-      EMAIL_ID: email,
-    }
-  });
-
-  const Otp= await OTP.findOne({
-    where:{
-      USER_ID: user.USER_ID
-    },
-    order: [['CREATED_DATE_TIME', 'DESC']],
-  });
- 
-  const verifiedOtp = await comparePasswordOrOtp(otp, Otp.OTP);
-
-  if(user && verifiedOtp){
-     await USER.update(
-      {isVERIFIED: true},
-      {
-        where: {
-        USER_ID: user.USER_ID,
-      }}
-     );
-
-     const token = jwt.sign(
-      {
-        email: user.EMAIL_ID,
-       // role: user.ROLE_ID,
-        userId: user.USER_ID,
+        EMAIL_ID: email,
       },
-      SECRET_KEY,
-      { expiresIn: "1h" }
-    );
+    });
 
-    res.status(200).json({ message:`OTP validated`,token:token})
-  } else {
-    res.status(400).json({ message:`incorrect OTP or email address`})
-  }
+    const Otp = await OTP.findOne({
+      where: {
+        USER_ID: user.USER_ID,
+      },
+      order: [["CREATED_DATE_TIME", "DESC"]],
+    });
 
+    const verifiedOtp = await comparePasswordOrOtp(otp, Otp.OTP);
+
+    if (user && verifiedOtp) {
+      await USER.update(
+        { IS_VERIFIED: true },
+        {
+          where: {
+            USER_ID: user.USER_ID,
+          },
+        }
+      );
+
+      const token = jwt.sign(
+        {
+          email: user.EMAIL_ID,
+          // role: user.ROLE_ID,
+          userId: user.USER_ID,
+        },
+        SECRET_KEY,
+        { expiresIn: "1h" }
+      );
+
+      res.status(200).json({ message: `OTP validated`, token: token });
+    } else {
+      res.status(400).json({ message: `incorrect OTP or email address` });
+    }
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ err: "error detected",message: error.message });
+    return res
+      .status(500)
+      .json({ err: "error detected", message: error.message });
   }
-
 };
 
-const resendOtp = async (req, res) => { 
-   const {email} = req.body;
-  try{
-   const user = await USER.findOne({ where:{EMAIL_ID: email}});
+const resendOtp = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await USER.findOne({ where: { EMAIL_ID: email } });
 
-   if (user) {
-    if (user.isVERIFIED) {
+    if (user) {
+      if (user.IS_VERIFIED) {
+        return res
+          .status(409)
+          .json({ error: "User already exists and has been verified" });
+      }
+    } else {
       return res
         .status(409)
-        .json({ error: "User already exists and has been verified" });
+        .json({ error: ` account not found with ${email}` });
     }
-  } else {
+
+    const otp = await generateOTP();
+    const hashedOTP = await hashPassOrOTP(otp);
+
+    await OTP.create({
+      USER_ID: user.USER_ID,
+      OTP: hashedOTP,
+    });
+
+    await sendOTPToEmail(email, otp);
+
+    return res.status(201).json({
+      message: "OTP sent successfully",
+    });
+  } catch (err) {
     return res
-    .status(409)
-    .json({ error: ` account not found with ${email}` });
+      .status(500)
+      .json({ error: "error detected", message: err.message });
   }
-
-  const otp = await generateOTP();
-  const hashedOTP = await hashPassOrOTP(otp); 
-
-  await OTP.create({
-    USER_ID: user.USER_ID,
-    OTP: hashedOTP,
-  });
-
-  await sendOTPToEmail(email,otp);
- 
-  return res.status(201).json({
-    message:
-      "OTP sent successfully",
-  });
-  }catch(err) {
-    return res.status(500).json({ error: "error detected",message: err.message });
-  };
-
 };
 
 const signIn = async (req, res) => {
@@ -159,10 +162,10 @@ const signIn = async (req, res) => {
 
   try {
     const user = await USER.findOne({
-        // include: [{
-        //     model: ROLE,
-        //     attributes: ['ROLE_ID', 'ROLE_NAME'] 
-        //   }],
+      // include: [{
+      //     model: ROLE,
+      //     attributes: ['ROLE_ID', 'ROLE_NAME']
+      //   }],
       where: {
         EMAIL_ID: email,
       },
@@ -181,7 +184,7 @@ const signIn = async (req, res) => {
     const token = jwt.sign(
       {
         email: user.EMAIL_ID,
-       // role: user.ROLE_ID,
+        // role: user.ROLE_ID,
         userId: user.USER_ID,
       },
       SECRET_KEY,
@@ -193,4 +196,4 @@ const signIn = async (req, res) => {
   }
 };
 
-module.exports = { sendOtp, validateOTP,resendOtp, signIn };
+module.exports = { sendOtp, validateOTP, resendOtp, signIn };
