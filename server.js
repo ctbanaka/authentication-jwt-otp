@@ -7,12 +7,12 @@ const passport = require("passport");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({ origin: true }));
+app.use(cors({ origin:"http://localhost:4200" }));
 app.use(passport.initialize());
 
 const db = require("./src/models");
 
-db.sequelize.sync({ force: false }).then(() => {
+db.sequelize.sync({ force: true }).then(() => {
   console.log("re-synced db.");
 });
 

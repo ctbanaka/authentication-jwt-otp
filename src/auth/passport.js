@@ -8,7 +8,7 @@ const SECRET_KEY= process.env.SECRET_KEY;
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
-// TO BE IMPLEMENT
+// TO BE IMPLEMENTED
 let emp;
 
 const options = {

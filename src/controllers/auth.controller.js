@@ -2,7 +2,7 @@
 const jwt = require("jsonwebtoken");
 const db = require("../models/index");
 const USER = db.user;
-const ROLE = db.role;
+//const ROLE = db.role;
 const OTP = db.otp;
 const SECRET_KEY = process.env.SECRET_KEY;
 const {generateOTP,hashPassOrOTP,comparePasswordOrOtp,sendOTPToEmail} = require("../utils/utils");
@@ -170,7 +170,7 @@ const signIn = async (req, res) => {
       return res.status(404).json({ error: "user not found" });
     }
 
-    const matchPassword = await bcrypt.compare(password, user.PASSWORD);
+    const matchPassword = await comparePasswordOrOtp(password, user.PASSWORD);
 
     if (!matchPassword) {
       return res.status(400).json({ error: "invalid password" });

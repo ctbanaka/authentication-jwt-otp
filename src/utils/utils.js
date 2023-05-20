@@ -31,7 +31,7 @@ exports.sendOTPToEmail = async (email, otp) => {
   });
 
   const mailOptions = {
-    from: "hellofrom@legituser.com",
+    from: "chetankumar@legituser.com",
     to: email,
     subject: 'OTP Verification',
     text: `Your OTP for email verification is: ${otp}`,
