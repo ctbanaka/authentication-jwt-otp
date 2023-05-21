@@ -132,7 +132,7 @@ const resendOtp = async (req, res) => {
   const { email } = req.body;
   try {
 
-    if(!email){
+    if(!email || typeof email =='undefined' || email=='') {
       throw new Error(`email required`);
     }
 
