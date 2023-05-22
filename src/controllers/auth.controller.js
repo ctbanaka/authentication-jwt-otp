@@ -197,6 +197,10 @@ const signIn = async (req, res) => {
       return res.status(404).json({ error: "user not found" });
     }
 
+    if(!user.IS_VERIFIED){
+      return res.status(400).json({ error: "verify your email before signing in" });
+    }
+
     const matchPassword = await comparePasswordOrOtp(password, user.PASSWORD);
 
     if (!matchPassword) {
@@ -212,10 +216,16 @@ const signIn = async (req, res) => {
       SECRET_KEY,
       { expiresIn: "1h" }
     );
-    res.status(200).send({ user: user, token: token });
+    res.status(200).send({ token: token });
   } catch (error) {
     console.log(error);
   }
+};
+
+const forgotPassword= async (req, res) => {
+  const {email} = req.body;
+
+
 };
 
 module.exports = { sendOtp, validateOTP, resendOtp, signIn };

@@ -1,40 +1,46 @@
+const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const otpGenerator = require("otp-generator");
+const AWS = require("aws-sdk");
 
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const otpGenerator = require('otp-generator');
-const AWS = require('aws-sdk');
-
+AWS.config.update({
+  accessKeyId: "AKIA5UBY6HKUCO5UOYZJ",
+  secretAccessKey: "BJfCgxW4jAqwXslM3EALs8GDxasvj18zRz45WhOUtc7a",
+  region: "eu-west-1",
+});
 
 exports.generateOTP = async () => {
-  return await otpGenerator.generate(6, {lowerCaseAlphabets: false,upperCaseAlphabets:false, specialChars: false }); 
+  return await otpGenerator.generate(6, {
+    lowerCaseAlphabets: false,
+    upperCaseAlphabets: false,
+    specialChars: false,
+  });
 };
 
 exports.sendOTPToEmail = async (email, otp) => {
-
   const transporter = nodemailer.createTransport({
+       host: process.env.MYHOST,
+       port:process.env.MYPORT,
+       secure:true,
+       auth:{
+        user: process.env.USER,
+        pass: process.env.PASS
+       }
 
-   host: process.env.MYHOST,
-   port:process.env.MYPORT,
-   secure:true,
-   auth:{
-    user: process.env.USER,
-    pass: process.env.PASS
-   }
- 
-    // SES: new AWS.SES({
-    //   apiVersion: "2010-12-01",
-    //   accessKeyId: "AKIA5UBY6HKUCO5UOYZJ",
-    //   secretAccessKey: "BJfCgxW4jAqwXslM3EALs8GDxasvj18zRz45WhOUtc7a",
-    //   region: "eu-west-1",
-    // })
-   
+    // host: "smtp.eu-west-1.amazonaws.com",
+    // port: 587,
+    // secure: false,
+    // auth: {
+    //   user: "AKIA5UBY6HKUCO5UOYZJ",
+    //   pass: "BJfCgxW4jAqwXslM3EALs8GDxasvj18zRz45WhOUtc7a",
+    // },
   });
 
   const mailOptions = {
-    from: "chetankumar@legituser.com",
+    from:  "chetankumar@legituser.com", //"no-reply@verificationemail.com",
     to: email,
-    subject: 'OneView OTP Verification',
-    html:`<!DOCTYPE html>
+    subject: "OneView OTP Verification",
+    html: `<!DOCTYPE html>
     <html>
     <head>
         <meta charset="utf-8">
@@ -123,15 +129,15 @@ exports.sendOTPToEmail = async (email, otp) => {
         </div>
     </body>
     </html>
-    `
+    `,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('OTP email sent successfully');
+    console.log("OTP email sent successfully");
   } catch (error) {
-    console.error('Error sending OTP email:', error);
-    throw new Error('Error in sending OTP');
+    console.error("Error sending OTP email:", error);
+    throw new Error("Error in sending OTP");
   }
 };
 

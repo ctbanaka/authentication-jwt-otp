@@ -3,14 +3,14 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const db = require("../models/index");
-const otpGenerator = require('otp-generator');
+const otpGenerator = require("otp-generator");
 const USER = db.user;
 const ROLE = db.role;
 const OTP = db.otp;
 const SECRET_KEY = process.env.SECRET_KEY;
 
-const signup = async (req, res,) => {
-  const {email, password, roleId, createdby, modifiedby} = req.body;
+const signup = async (req, res) => {
+  const { email, password, roleId, createdby, modifiedby } = req.body;
   try {
     const user = await USER.findOne({
       where: {
@@ -21,14 +21,14 @@ const signup = async (req, res,) => {
       return res.status(403).json({ error: "User already exists" });
     }
     const role = await ROLE.findOne({
-        where: {
-            ROLE_ID: roleId,
-        }
+      where: {
+        ROLE_ID: roleId,
+      },
     });
     if (!role) {
-        return res.status(409).json({ error: "no role associated" });
-      }
-    
+      return res.status(409).json({ error: "no role associated" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await USER.create({
       EMAIL_ID: email,
@@ -60,10 +60,10 @@ const signIn = async (req, res) => {
 
   try {
     const user = await USER.findOne({
-        // include: [{
-        //     model: ROLE,
-        //     attributes: ['ROLE_ID', 'ROLE_NAME'] 
-        //   }],
+      // include: [{
+      //     model: ROLE,
+      //     attributes: ['ROLE_ID', 'ROLE_NAME']
+      //   }],
       where: {
         EMAIL_ID: email,
       },
@@ -82,7 +82,7 @@ const signIn = async (req, res) => {
     const token = jwt.sign(
       {
         email: user.EMAIL_ID,
-       // role: user.ROLE_ID,
+        // role: user.ROLE_ID,
         userId: user.USER_ID,
       },
       SECRET_KEY,
@@ -94,7 +94,6 @@ const signIn = async (req, res) => {
   }
 };
 
- 
 const protectedapi = (req, res) => {
   return res.status(200).send(`accessed with token`);
 };
@@ -103,8 +102,6 @@ const protectedrole = (req, res) => {
   return res.status(200).send(`accessed with token and role`);
 };
 
-const sendOtp= (req, res) => {
-
-};
+const sendOtp = (req, res) => {};
 
 module.exports = { signup, signin, protectedapi, protectedrole };
