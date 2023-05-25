@@ -7,4 +7,8 @@ const createRole = async (req, res, next) => {
     res.status(201).send({role:role});
 };
 
-module.exports ={ createRole};
+
+const protectedrole = (req, res) => {
+    return res.status(200).send(`accessed with token and role`);
+  };
+module.exports ={ createRole,protectedrole};

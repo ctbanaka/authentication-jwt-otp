@@ -11,13 +11,13 @@ module.exports = function (sequelize, Sequelize) {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      // for future use
+      // for future use if needed
       expirationTime: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,
       },
-        // for future use
+        // for future use if needed
       isExpired: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
