@@ -214,13 +214,15 @@ const signIn = async (req, res) => {
     }
 
     const user = await USER.findOne({
-      include: [{
-          model: ROLE,
-          attributes: ['ROLE_NAME']
-        }],
       where: {
         EMAIL_ID: email,
       },
+      include: [
+        {
+          model: ROLE,
+          attributes: ['ROLE_NAME'],
+        },
+      ]
     });
 
     if (!user) {
@@ -242,7 +244,7 @@ const signIn = async (req, res) => {
     const token = jwt.sign(
       {
         email: user.EMAIL_ID,
-         role: user.ONEVIEW_ROLES.ROLE_NAME,
+         role: user.ONEVIEW_ROLE.ROLE_NAME,
         userId: user.USER_ID,
       },
       SECRET_KEY,

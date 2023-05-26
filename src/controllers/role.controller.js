@@ -11,4 +11,8 @@ const createRole = async (req, res, next) => {
 const protectedrole = (req, res) => {
     return res.status(200).send(`accessed with token and role`);
   };
-module.exports ={ createRole,protectedrole};
+
+  const protectedapi = (req, res) => {
+    return res.status(200).send(`accessed with token`);
+  };
+module.exports ={ createRole,protectedrole,protectedapi};

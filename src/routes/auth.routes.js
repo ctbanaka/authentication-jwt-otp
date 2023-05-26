@@ -15,8 +15,9 @@ router.post("/signin", auth.signIn);
 router.post("/forgot-password", auth.forgotPassword);
 router.post("/reset-password", auth.resetPassword);
 router.post("/createrole",roleController.createRole);
-router.get("/role", authorize(['random']), roleController.protectedrole);
-// authorize(['admin']),
+router.get("/dummy",authenticate, roleController.protectedapi);
+router.get("/role",authenticate, authorize(['randi',]), roleController.protectedrole);
+
 
 let routes = app.use("/api", router);
 

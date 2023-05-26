@@ -23,8 +23,8 @@ const options = {
         where: {
           USER_ID: jwtPayload.userId,
         },
+        attributes: ['USER_ID', 'EMAIL_ID','IS_VERIFIED'],
       });
-      console.log("in strategy",user);
       if (user) {
         return done(null, user);
       }
@@ -40,11 +40,11 @@ passport.use(strategy);
 const authorize = function (allowedRoles) {
     return async function (req, res, next) {
       try {
-        console.log("in authorization", req.user.ONEVIEW_ROLE.ROLE_NAME,req.user.ROLE_NAME, req.user)
-        if (!req.user && !allowedRoles.includes(req.user.ONEVIEW_ROLE.ROLE_NAME)) {
-          res.status(403).json({ message: 'Forbidden' });
-        } else {
+        console.log("in authorization", req.user.ONEVIEW_ROLE.ROLE_NAME);
+        if (req.user && allowedRoles.includes(req.user.ONEVIEW_ROLE.ROLE_NAME)) {
           next();
+        } else {
+          res.status(403).json({ message: 'Forbidden' });
         }
       } catch (error) {
         return res.status(500).json({ error: 'Internal Server Error' });
