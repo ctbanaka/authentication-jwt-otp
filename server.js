@@ -7,7 +7,7 @@ const passport = require("passport");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({ origin:"http://localhost:4200" }));
+app.use(cors({ origin:"*" })); // allow all as of now, will change later
 app.use(passport.initialize());
 
 const db = require("./src/models");

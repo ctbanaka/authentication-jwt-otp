@@ -18,12 +18,13 @@ const options = {
       const user = await USER.findOne({
         include: [{
             model: ROLE,
-            attributes: ['ROLE_ID', 'ROLE_NAME'] 
+            attributes: ['ROLE_NAME']
           }],
         where: {
           USER_ID: jwtPayload.userId,
         },
       });
+      console.log("in strategy",user);
       if (user) {
         return done(null, user);
       }
@@ -39,8 +40,8 @@ passport.use(strategy);
 const authorize = function (allowedRoles) {
     return async function (req, res, next) {
       try {
-        console.log("in authorization", req.user)
-        if (!req.user && !allowedRoles.includes(req.user.role)) {
+        console.log("in authorization", req.user.ONEVIEW_ROLE.ROLE_NAME,req.user.ROLE_NAME, req.user)
+        if (!req.user && !allowedRoles.includes(req.user.ONEVIEW_ROLE.ROLE_NAME)) {
           res.status(403).json({ message: 'Forbidden' });
         } else {
           next();

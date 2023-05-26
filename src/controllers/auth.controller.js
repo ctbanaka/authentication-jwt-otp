@@ -59,15 +59,15 @@ const sendOtp = async (req, res) => {
   if (!role) {
       return res.status(409).json({ error: "no role associated" });
     }
-
+   
+    const hashedPassword = await hashPassOrOTP(password);
     const otp = await generateOTP();
     const hashedOTP = await hashPassOrOTP(otp);
-    const hashedPassword = await hashPassOrOTP(password);
 
     const user = await USER.create({
       EMAIL_ID: email,
       PASSWORD: hashedPassword,
-      ROLE_ID: roleId,
+      ROLE_ID: roleId
     });
 
     await OTP.create({
@@ -88,6 +88,10 @@ const sendOtp = async (req, res) => {
   }
 };
 
+
+
+
+
 const validateOTP = async (req, res) => {
   const { email, otp } = req.body;
 
@@ -101,13 +105,16 @@ const validateOTP = async (req, res) => {
     }
 
     const user = await USER.findOne({
-      include: [{
-        model: ROLE,
-        attributes: ['ROLE_ID', 'ROLE_NAME'] 
-      }],
       where: {
         EMAIL_ID: email,
       },
+      include: [
+        {
+          model: ROLE,
+          attributes: ['ROLE_NAME'],
+        },
+      ],
+      attributes: ['USER_ID', 'EMAIL_ID'],
     });
 
     const Otp = await OTP.findOne({
@@ -132,14 +139,14 @@ const validateOTP = async (req, res) => {
       const token = jwt.sign(
         {
           email: user.EMAIL_ID,
-           role: user.ROLE_NAME,
+          role: user.ONEVIEW_ROLE.ROLE_NAME,
           userId: user.USER_ID,
         },
         SECRET_KEY,
-        { expiresIn: "1h" }
+        { expiresIn: "3h" }
       );
 
-      res.status(200).json({ message: `OTP validated`, token: token });
+      res.status(200).json({ message: `OTP validated`,user:user, token: token });
     } else {
       res.status(400).json({ message: `incorrect OTP` });
     }
@@ -150,6 +157,8 @@ const validateOTP = async (req, res) => {
       .json({ err: "error detected", message: error.message });
   }
 };
+
+
 
 const resendOtp = async (req, res) => {
   const { email } = req.body;
@@ -207,7 +216,7 @@ const signIn = async (req, res) => {
     const user = await USER.findOne({
       include: [{
           model: ROLE,
-          attributes: ['ROLE_ID', 'ROLE_NAME']
+          attributes: ['ROLE_NAME']
         }],
       where: {
         EMAIL_ID: email,
@@ -233,13 +242,13 @@ const signIn = async (req, res) => {
     const token = jwt.sign(
       {
         email: user.EMAIL_ID,
-         role: user.ROLE_NAME,
+         role: user.ONEVIEW_ROLES.ROLE_NAME,
         userId: user.USER_ID,
       },
       SECRET_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "3h" }
     );
-    res.status(200).send({ token: token });
+    res.status(200).send({token: token });
   } catch (error) {
     console.log(error);
   }

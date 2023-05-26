@@ -6,6 +6,7 @@ const auth = require("../controllers/auth.controller");
 const roleController = require("../controllers/role.controller");
 const { resendOTPLimiter } = require("../middleware/ratelimiter");
 const { validateEmail } = require("../middleware/validateemail");
+const { authenticate,authorize } = require("../auth/passport");
 
 router.post("/signup", auth.sendOtp);
 router.post("/verify", auth.validateOTP);
@@ -14,8 +15,8 @@ router.post("/signin", auth.signIn);
 router.post("/forgot-password", auth.forgotPassword);
 router.post("/reset-password", auth.resetPassword);
 router.post("/createrole",roleController.createRole);
-router.get("/role", roleController.protectedrole);
-
+router.get("/role", authorize(['random']), roleController.protectedrole);
+// authorize(['admin']),
 
 let routes = app.use("/api", router);
 
