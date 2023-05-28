@@ -4,6 +4,7 @@ const app = express();
 const routes = require("./src/routes/auth.routes")
 const cors = require("cors");
 const passport = require("passport");
+const swaggerApp = require('./swagger');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -18,6 +19,7 @@ db.sequelize.sync({ force: false }).then(() => {
 
 app.use("/",routes);
 
+app.use("/", swaggerApp);
 
 
 // Start server

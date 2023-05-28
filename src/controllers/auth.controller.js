@@ -18,7 +18,51 @@ const {
 } = require("../utils/resetpassword");
 const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/; // regex will be replaced to capgemini
 
+/**
+ * @swagger
+ * tags:
+ *   name: Authentication
+ *   description: User authentication routes
+ */
+
+
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: User registration
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 description: User's password
+ *               roleId:
+ *                 type: number
+ *                 description: Optional role ID
+ *             required:
+ *               - email
+ *               - password
+ *     responses:
+ *       200:
+ *         description: User registered successfully
+ *       400:
+ *         description: Bad request
+ */
 const sendOtp = async (req, res) => {
+
+  // roleId is for demostration purposes
+  // you should assign role based on your reqirements
   const { email, password,roleId } = req.body;
 
   try {
@@ -90,7 +134,35 @@ const sendOtp = async (req, res) => {
 
 
 
-
+/**
+ * @swagger
+ * /verify:
+ *   post:
+ *     summary: Verify OTP
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *               otp:
+ *                 type: string
+ *                 description: One-Time Password
+ *             required:
+ *               - email
+ *               - otp
+ *     responses:
+ *       200:
+ *         description: OTP verification successful
+ *       400:
+ *         description: Bad request
+ */
 
 const validateOTP = async (req, res) => {
   const { email, otp } = req.body;
@@ -148,7 +220,7 @@ const validateOTP = async (req, res) => {
 
       res.status(200).json({ message: `OTP validated`,user:user, token: token });
     } else {
-      res.status(400).json({ message: `incorrect OTP` });
+      res.status(400).json({ message: `incorrect OTP or email` });
     }
   } catch (error) {
     console.error(error);
@@ -158,7 +230,33 @@ const validateOTP = async (req, res) => {
   }
 };
 
-
+/**
+ * @swagger
+ * /resend-otp:
+ *   post:
+ *     summary: resend OTP
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *                
+ *             required:
+ *               - email
+ *              
+ *     responses:
+ *       200:
+ *         description: OTP sent successfully
+ *       400:
+ *         description: Bad request
+ */
 
 const resendOtp = async (req, res) => {
   const { email } = req.body;
@@ -205,12 +303,42 @@ const resendOtp = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /signin:
+ *   post:
+ *     summary: User login
+ *     tags: [Authentication]
+ *     requestBody:
+ *       description: User credentials
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User logged in successfully
+ *       400:
+ *         description: Invalid request body
+ *       401:
+ *         description: Unauthorized - Invalid credentials
+ */
 const signIn = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     if (!email || !password) {
       throw new Error(`one or more fields required`);
+    }
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "this is not a valid email" });
     }
 
     const user = await USER.findOne({
@@ -256,6 +384,34 @@ const signIn = async (req, res) => {
   }
 };
 
+
+/**
+ * @swagger
+ * /forgot-password:
+ *   post:
+ *     summary: forgot password
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *                
+ *             required:
+ *               - email
+ *              
+ *     responses:
+ *       200:
+ *         description: reset email sent successfully
+ *       400:
+ *         description: Bad request
+ */
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
@@ -297,6 +453,40 @@ const forgotPassword = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /reset-password:
+ *   post:
+ *     summary: User password reset
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 description: User's password
+ *               token:
+ *                 type: string
+ *                 description: reset token
+ *             required:
+ *               - email
+ *               - password
+ *               - token
+ *     responses:
+ *       200:
+ *         description: password reset successful
+ *       400:
+ *         description: Bad request
+ */
 const resetPassword = async (req, res) => {
   const { token, password, email } = req.body;
 
@@ -318,7 +508,7 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({ error: "invalid token" });
     }
 
-    // i will later
+    //  will do later
     // if(password.length <7)
     // return res.status(409).json({ error: "invalid password" });
 

@@ -8,6 +8,8 @@ const { resendOTPLimiter } = require("../middleware/ratelimiter");
 const { validateEmail } = require("../middleware/validateemail");
 const { authenticate,authorize } = require("../auth/passport");
 
+ 
+
 router.post("/signup", auth.sendOtp);
 router.post("/verify", auth.validateOTP);
 router.post("/resend-otp", validateEmail, resendOTPLimiter, auth.resendOtp);
