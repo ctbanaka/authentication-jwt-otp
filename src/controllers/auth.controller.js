@@ -5,18 +5,23 @@ const USER = db.user;
 const ROLE = db.role;
 const OTP = db.otp;
 const TOKEN = db.token;
+const PASSWORD= db.password;
 const SECRET_KEY = process.env.SECRET_KEY;
+
 const {
   generateOTP,
   hashPassOrOTP,
   comparePasswordOrOtp,
   sendOTPToEmail,
 } = require("../utils/utils");
+
 const {
   generateResetToken,
   sendResetLinkToEmail,
 } = require("../utils/resetpassword");
+
 const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/; // regex will be replaced to capgemini
+const passwordRegex = /^.{8}$/;
 
 /**
  * @swagger
@@ -47,9 +52,6 @@ const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/; // regex will be replaced t
  *                 type: string
  *                 format: password
  *                 description: User's password
- *               roleId:
- *                 type: number
- *                 description: Optional role ID
  *             required:
  *               - email
  *               - password
@@ -60,10 +62,8 @@ const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/; // regex will be replaced t
  *         description: Bad request
  */
 const sendOtp = async (req, res) => {
-
-  // roleId is for demostration purposes
-  // you should assign role based on your reqirements
-  const { email, password,roleId } = req.body;
+                /*roleId*/
+  const { email, password,} = req.body;
 
   try {
     if (!email || !password) {
@@ -72,6 +72,10 @@ const sendOtp = async (req, res) => {
 
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "this is not a valid email" });
+    }
+
+    if(!passwordRegex.test(password)) {
+      return res.status(400).json({ error: "enter valid password" });
     }
 
     const exstingUser = await USER.findOne({
@@ -95,14 +99,14 @@ const sendOtp = async (req, res) => {
       }
     }
 
-    const role = await ROLE.findOne({
-      where: {
-          ROLE_ID: roleId,
-      }
-  });
-  if (!role) {
-      return res.status(409).json({ error: "no role associated" });
-    }
+  //   const role = await ROLE.findOne({
+  //     where: {
+  //         ROLE_ID: roleId,
+  //     }
+  // });
+  // if (!role) {
+  //     return res.status(409).json({ error: "no role associated" });
+  //   }
    
     const hashedPassword = await hashPassOrOTP(password);
     const otp = await generateOTP();
@@ -110,8 +114,12 @@ const sendOtp = async (req, res) => {
 
     const user = await USER.create({
       EMAIL_ID: email,
+     // ROLE_ID: roleId
+    });
+
+    await PASSWORD.create({
+      USER_ID: user.USER_ID,
       PASSWORD: hashedPassword,
-      ROLE_ID: roleId
     });
 
     await OTP.create({
@@ -345,12 +353,14 @@ const signIn = async (req, res) => {
       where: {
         EMAIL_ID: email,
       },
-      include: [
-        {
-          model: ROLE,
-          attributes: ['ROLE_NAME'],
-        },
-      ]
+      include:[{model:PASSWORD,attributes: ['PASSWORD']}],
+
+      // include: [
+      //   {
+      //     model: ROLE,
+      //     attributes: ['ROLE_NAME'],
+      //   },
+      // ]
     });
 
     if (!user) {
@@ -362,8 +372,7 @@ const signIn = async (req, res) => {
         .status(400)
         .json({ error: "verify your email before signing in" });
     }
-
-    const matchPassword = await comparePasswordOrOtp(password, user.PASSWORD);
+    const matchPassword = await comparePasswordOrOtp(password, user.ONEVIEW_PASSWORD.PASSWORD);
 
     if (!matchPassword) {
       return res.status(400).json({ error: "invalid password" });
@@ -372,7 +381,7 @@ const signIn = async (req, res) => {
     const token = jwt.sign(
       {
         email: user.EMAIL_ID,
-         role: user.ONEVIEW_ROLE.ROLE_NAME,
+       //  role: user.ONEVIEW_ROLE.ROLE_NAME,
         userId: user.USER_ID,
       },
       SECRET_KEY,
@@ -508,13 +517,13 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({ error: "invalid token" });
     }
 
-    //  will do later
-    // if(password.length <7)
-    // return res.status(409).json({ error: "invalid password" });
-
+    if(!passwordRegex.test(password)) {
+    return res.status(409).json({ error: "password criteria does not match" });
+    }
+    
     const hashedPassword = await hashPassOrOTP(password);
 
-     await USER.update(
+     await PASSWORD.update(
       { PASSWORD: hashedPassword },
       {
         where: {

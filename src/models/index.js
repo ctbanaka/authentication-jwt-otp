@@ -35,6 +35,7 @@ db.user = require("./user.model.js")(sequelize, Sequelize);
 db.role= require("./role.model.js")(sequelize, Sequelize);
 db.otp= require("./otp.model.js")(sequelize,Sequelize);
 db.token= require("./token.model.js")(sequelize,Sequelize);
+db.password= require("./password.model.js")(sequelize,Sequelize);
 
 //association
 db.role.hasMany(db.user,{foreignKey:"ROLE_ID", sourceKey: 'ROLE_ID'});
@@ -45,5 +46,8 @@ db.otp.belongsTo(db.user,{foreignKey:"USER_ID"});
 
 db.user.hasMany(db.token,{foreignKey:"USER_ID"});
 db.token.belongsTo(db.user,{foreignKey:"USER_ID"});
+
+db.user.hasOne(db.password,{foreignKey:"USER_ID"});
+db.password.belongsTo(db.user,{foreignKey:"USER_ID"});
 
 module.exports = db;

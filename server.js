@@ -13,7 +13,7 @@ app.use(passport.initialize());
 
 const db = require("./src/models");
 
-db.sequelize.sync({ force: false }).then(() => {
+db.sequelize.sync({ force: true }).then(() => {
   console.log("re-synced db.");
 });
 

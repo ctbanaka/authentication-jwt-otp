@@ -13,11 +13,6 @@ module.exports = function (sequelize, Sequelize) {
         unique: true,
       },
 
-      PASSWORD: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-
       IS_VERIFIED: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
