@@ -1,6 +1,6 @@
 module.exports = function (sequelize, Sequelize) {
     const Pass = sequelize.define(
-      "ONEVIEW_PASSWORDS",
+      "PASSWORD",
       {
         PASSWORD_ID: {
           type: Sequelize.INTEGER,

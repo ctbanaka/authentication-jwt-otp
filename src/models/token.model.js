@@ -1,6 +1,6 @@
 module.exports = function (sequelize, Sequelize) {
     const token = sequelize.define(
-      "ONEVIEW_TOKENS",
+      "TOKEN",
       {
         TOKEN_ID: {
           type: Sequelize.INTEGER,

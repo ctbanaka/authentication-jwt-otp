@@ -9,8 +9,8 @@ const createRole = async (req, res, next) => {
 
 
 const protectedrole = (req, res) => {
-    return res.status(200).send(`accessed with token and role`);
-  };
+  return res.status(200).send(`accessed with token and role`);
+};
 
   const protectedapi = (req, res) => {
     return res.status(200).send(`accessed with token`);

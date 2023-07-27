@@ -1,6 +1,6 @@
 module.exports = function (sequelize, Sequelize) {
   const Otp = sequelize.define(
-    "ONEVIEW_OTPS",
+    "OTP",
     {
       OTP_ID: {
         type: Sequelize.INTEGER,

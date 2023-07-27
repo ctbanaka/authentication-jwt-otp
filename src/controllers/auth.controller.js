@@ -21,7 +21,7 @@ const {
 } = require("../utils/resetpassword");
 
 const emailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/; // regex will be replaced to capgemini
-const passwordRegex = /^.{8}$/;
+const passwordRegex = /^.{8,}$/;
 
 /**
  * @swagger
@@ -218,7 +218,7 @@ const validateOTP = async (req, res) => {
       const token = jwt.sign(
         {
           email: user.EMAIL_ID,
-          role: user.ONEVIEW_ROLE.ROLE_NAME,
+         // role: user.ONEVIEW_ROLE.ROLE_NAME,
           userId: user.USER_ID,
         },
         SECRET_KEY,
@@ -227,7 +227,7 @@ const validateOTP = async (req, res) => {
 
       res
         .status(200)
-        .json({ message: `OTP validated`, user: user, token: token });
+        .json({ message: `OTP validated`, token: token });
     } else {
       res.status(400).json({ message: `incorrect OTP or email` });
     }

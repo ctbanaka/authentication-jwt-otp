@@ -1,6 +1,6 @@
 module.exports = function (sequelize, Sequelize) {
   const User = sequelize.define(
-    "ONEVIEW_USERS",
+    "USERS",
     {
       USER_ID: {
         autoIncrement: true,
